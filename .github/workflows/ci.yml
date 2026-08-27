@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  node:
+    name: Node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Skeleton: no-ops until a lab adds a package.json at the repo root.
+      - name: Install
+        run: |
+          if [ -f package.json ]; then
+            npm ci || npm install
+          else
+            echo "no package.json yet - skipping"
+          fi
+
+      - name: Test
+        run: |
+          if [ -f package.json ]; then
+            npm test --if-present
+          else
+            echo "no package.json yet - skipping"
+          fi
+
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      # Skeleton: no-ops until a lab adds a go.mod.
+      - name: Test
+        run: |
+          if [ -f go.mod ]; then
+            go vet ./...
+            go test -race ./...
+          else
+            echo "no go.mod yet - skipping"
+          fi
